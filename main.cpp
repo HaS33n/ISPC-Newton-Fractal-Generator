@@ -25,12 +25,12 @@ typedef uint32_t Color;
 
 constexpr uint i_width = 1500;
 constexpr uint i_height = 1500;
-constexpr uint max_iter = 2048;
+constexpr uint max_iter = 256;
 
 void dumpToFile(const Color* data);
 void calcRoots(ispc::binding* target, const int n);
 
-const Color colors[] = {RED, GREEN, BLUE, MAGENTA};
+const Color colors[] = {RED, GREEN, BLUE, MAGENTA, CYAN, YELLOW};
 const auto colors_size = sizeof(colors) / sizeof(Color);
 
 int main(int argc, char** argv) {
@@ -61,12 +61,12 @@ int main(int argc, char** argv) {
 
 void calcRoots(ispc::binding* target, const int n){
     for(int k = 0; k < n; k++){
-        const double phi = 2 * M_PI * (double(k)/double(n));
+        const double phi = 2.0 * M_PI * (double(k)/double(n));
 
         const Complex c(std::cos(phi), std::sin(phi));
         const ispc::cplx cplx = {c.real(), c.imag()};
 
-        target[k] = {cplx, colors[k % (colors_size-1)]};
+        target[k] = {cplx, colors[k % (colors_size)]};
     }
 }
 

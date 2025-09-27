@@ -18,6 +18,6 @@ run: clean all
 $(BIN)/$(EXECUTABLE):
 	$(ISPC) $(ISPC_FLAGS) $(ISPC_NAME).ispc -o $(ISPC_NAME).o -h $(ISPC_NAME).h
 	$(CXX) $(CXX_FLAGS) -o $(EXECUTABLE).out main.cpp $(ISPC_NAME).o
-
+	-rm $(ISPC_NAME).o
 clean:
 	-rm $(BIN)/*

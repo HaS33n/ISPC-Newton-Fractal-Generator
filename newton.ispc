@@ -79,7 +79,7 @@ cplx operator/(cplx a, cplx b){
 }
 
 static cplx cpow(cplx z, int exp){
-    cplx result = {1.0f, 0.0f}; // jedynka
+    cplx result = {1.0d, 0.0d}; // jedynka
     cplx base = z;
 
     while (exp > 0) {
@@ -101,7 +101,7 @@ static cplx df(cplx z, int n){
 }
 
 static inline clr adjustColor(const clr c, const uint iters){
-    const double brightness = 1.0f / (1.0f + (double)iters * 0.1f);
+    const double brightness = 1.0d / (1.0d + (double)iters * 0.1d);
 
     clr res = 0x000000FF;
     for(uint i = 0; i < 3; i++){
@@ -116,8 +116,11 @@ static inline clr adjustColor(const clr c, const uint iters){
 }
 
 static inline clr findColor(const uint x,  const uniform uint y, const uniform uint width, const uniform uint height, const uniform uint max_iterations, const uniform int n, const uniform binding roots[]){
-    const double zx = -2.5f + ((double)x / (double)(width - 1)) * 3.5f;
-    const double zy = -2.0f + ((double)y / (double)(height - 1)) * 3.0f;
+    //const double zx = -2.5d + ((double)x / (double)(width - 1)) * 3.5d;
+    //const double zy = -2.0d + ((double)y / (double)(height - 1)) * 3.0d;
+
+    const double zx = -2.0d + ((double)x / (double)(width - 1)) * 4.0d;
+    const double zy = -2.0d + ((double)y / (double)(height - 1)) * 4.0d;
 
     cplx z = {zx,zy};
     for(uint i=0; i < max_iterations; i++){
@@ -135,8 +138,7 @@ static inline clr findColor(const uint x,  const uniform uint y, const uniform u
 
 export void newtonFrac(uniform clr buffer[], const uniform binding roots[], const uniform int n, const uniform uint width, const uniform uint height, const uniform uint max_iterations){
     for (uniform uint y = 0; y < height; y++) {
-        foreach (x = 0 ... width) {
+        foreach (x = 0 ... width)
             buffer[y * width + x] = findColor(x, y, width, height, max_iterations, n, roots);
-        }
     }
 }
