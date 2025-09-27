@@ -101,9 +101,18 @@ static cplx df(cplx z, int n){
 }
 
 static inline clr adjustColor(const clr c, const uint iters){
-    const double brightness = 1.0 / (1.0 + iters * 0.1);
+    const double brightness = 1.0f / (1.0f + (double)iters * 0.1f);
 
-    return c * brightness;
+    clr res = 0x000000FF;
+    for(uint i = 0; i < 3; i++){
+        clr buff = ((c >> (i+1) * 8) & 0xFF);
+        buff = ((double)buff * brightness);
+
+        buff <<= (i+1) * 8;
+        res |= buff;
+    }
+
+    return res;
 }
 
 static inline clr findColor(const uint x,  const uniform uint y, const uniform uint width, const uniform uint height, const uniform uint max_iterations, const uniform int n, const uniform binding roots[]){
@@ -111,7 +120,7 @@ static inline clr findColor(const uint x,  const uniform uint y, const uniform u
     const double zy = -2.0f + ((double)y / (double)(height - 1)) * 3.0f;
 
     cplx z = {zx,zy};
-     for(uint i=0; i < max_iterations; i++){
+    for(uint i=0; i < max_iterations; i++){
         z = z - (f(z,n) / df(z,n));
 
         for(int j = 0; j < n; j++){
@@ -127,7 +136,7 @@ static inline clr findColor(const uint x,  const uniform uint y, const uniform u
 export void newtonFrac(uniform clr buffer[], const uniform binding roots[], const uniform int n, const uniform uint width, const uniform uint height, const uniform uint max_iterations){
     for (uniform uint y = 0; y < height; y++) {
         foreach (x = 0 ... width) {
-                buffer[y * width + x] = findColor(x, y, width, height, max_iterations, n, roots);
+            buffer[y * width + x] = findColor(x, y, width, height, max_iterations, n, roots);
         }
     }
 }
