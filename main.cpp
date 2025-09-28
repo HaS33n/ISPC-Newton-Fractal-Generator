@@ -43,6 +43,8 @@ int main(int argc, char** argv) {
     std::unique_ptr<Color> img_buffer(new Color[i_width * i_height]);
     std::unique_ptr<ispc::binding> roots(new ispc::binding[n]);
 
+
+    auto entry = std::chrono::high_resolution_clock::now();
     calcRoots(roots.get(), n);
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -55,7 +57,11 @@ int main(int argc, char** argv) {
     std::cout << "ISPC Exec time: " << elapsed.count() << " ms\n";
 
     dumpToFile(img_buffer.get());
+    stop = std::chrono::high_resolution_clock::now();
+    elapsed = stop - entry;
 
+
+    std::cout << "Prog Exec time: " << elapsed.count() << " ms\n";
     return 0;
 }
 

@@ -1,5 +1,5 @@
 CXX		  := g++
-CXX_FLAGS := -Wall -Wextra -std=c++17 -O2
+CXX_FLAGS := -Wall -Wextra -std=c++17 -O2 -pg
 
 ISPC		:= ispc
 ISPC_FLAGS 	:= --PIC
