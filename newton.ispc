@@ -32,6 +32,15 @@ cplx operator*(int n, cplx z){
     return result;
 }
 
+cplx operator*(double n, cplx z){
+    cplx result;
+
+    result.re = z.re * n;
+    result.im = z.im * n;
+    
+    return result;
+}
+
 cplx operator+(cplx a, cplx b){
     cplx result;
 
@@ -92,6 +101,13 @@ static cplx cpow(cplx z, int exp){
     return result;
 }
 
+static inline cplx cinv(cplx z){
+    double denom = z.re*z.re + z.im*z.im;
+
+    cplx res = { z.re / denom, -z.im / denom };
+    return res;
+}
+
 static inline cplx f(cplx z, int n){
     return cpow(z,n) - 1;
 }
@@ -115,6 +131,15 @@ static inline clr adjustColor(const clr c, const uint iters){
     return res;
 }
 
+static inline cplx calcNewtonStep(cplx z, int n){
+    double coeff = (double)(n-1)/(double)n;
+    cplx l = coeff * z;
+
+    cplx r = (1.0d / (double)n) * cinv(cpow(z,n-1));
+
+    return l+r;
+}
+
 static inline clr findColor(const uint x,  const uniform uint y, const uniform uint width, const uniform uint height, const uniform uint max_iterations, const uniform int n, const uniform binding roots[]){
     //const double zx = -2.5d + ((double)x / (double)(width - 1)) * 3.5d;
     //const double zy = -2.0d + ((double)y / (double)(height - 1)) * 3.0d;
@@ -124,8 +149,9 @@ static inline clr findColor(const uint x,  const uniform uint y, const uniform u
 
     cplx z = {zx,zy};
     for(uniform uint i=0; i < max_iterations; i++){
-        z = z - (f(z,n) / df(z,n));
+        //z = z - (f(z,n) / df(z,n));
 
+        z = calcNewtonStep(z,n);
         for(uniform int j = 0; j < n; j++){
             const cplx diff = z - (roots[j].z);
 
