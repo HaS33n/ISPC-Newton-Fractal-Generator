@@ -43,25 +43,10 @@ int main(int argc, char** argv) {
     std::unique_ptr<Color> img_buffer(new Color[i_width * i_height]);
     std::unique_ptr<ispc::binding> roots(new ispc::binding[n]);
 
-
-    auto entry = std::chrono::high_resolution_clock::now();
     calcRoots(roots.get(), n);
-
-    auto start = std::chrono::high_resolution_clock::now();
-
     ispc::newtonFrac(img_buffer.get(), roots.get(), n, i_width, i_height, max_iter);
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = stop - start;
-
-    std::cout << "ISPC Exec time: " << elapsed.count() << " ms\n";
-
     dumpToFile(img_buffer.get());
-    stop = std::chrono::high_resolution_clock::now();
-    elapsed = stop - entry;
 
-
-    std::cout << "Prog Exec time: " << elapsed.count() << " ms\n";
     return 0;
 }
 
@@ -80,7 +65,7 @@ void dumpToFile(const Color* data){
     std::fstream file(FILENAME, std::ios::out | std::ios::trunc);
     if(!file.good()){
         file.close();
-        std::cerr<<"cannot open file for whatever reason\n";
+        std::cerr<<"cannot dump your stunning imgage to file for whatever reason :c\n";
         return;
     }
 

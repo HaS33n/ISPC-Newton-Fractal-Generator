@@ -13,8 +13,9 @@ struct binding{
     clr color;
 };
 
-//utils
-cplx operator*(cplx a, cplx b){
+//UTILS
+//=====================================================================
+cplx operator*(const cplx& a, const cplx& b){
     cplx result;
 
     result.re = a.re * b.re - a.im * b.im;
@@ -23,7 +24,7 @@ cplx operator*(cplx a, cplx b){
     return result;
 }
 
-cplx operator*(int n, cplx z){
+cplx operator*(const int n, const cplx& z){
     cplx result;
 
     result.re = z.re * n;
@@ -32,7 +33,7 @@ cplx operator*(int n, cplx z){
     return result;
 }
 
-cplx operator*(double n, cplx z){
+cplx operator*(const double n, const cplx& z){
     cplx result;
 
     result.re = z.re * n;
@@ -41,7 +42,7 @@ cplx operator*(double n, cplx z){
     return result;
 }
 
-cplx operator+(cplx a, cplx b){
+cplx operator+(const cplx& a, const cplx& b){
     cplx result;
 
     result.re = a.re + b.re;
@@ -50,7 +51,7 @@ cplx operator+(cplx a, cplx b){
     return result;
 }
 
-cplx operator+(int n, cplx z){
+cplx operator+(const int n, const cplx& z){
     cplx result;
 
     result.re = z.re + n;
@@ -59,7 +60,7 @@ cplx operator+(int n, cplx z){
     return result;
 }
 
-cplx operator-(cplx a, cplx b){
+cplx operator-(const cplx& a, const cplx b){
     cplx result;
 
     result.re = a.re - b.re;
@@ -68,7 +69,7 @@ cplx operator-(cplx a, cplx b){
     return result;
 }
 
-cplx operator-(cplx z, int n){
+cplx operator-(const cplx& z, const int n){
     cplx result;
 
     result.re = z.re - n;
@@ -77,19 +78,20 @@ cplx operator-(cplx z, int n){
     return result;
 }
 
-cplx operator/(cplx a, cplx b){
+cplx operator/(const cplx& a, const cplx& b){
     cplx res;
 
-    double denom = b.re * b.re + b.im * b.im;
+    const double denom = b.re * b.re + b.im * b.im;
     res.re = (a.re * b.re + a.im * b.im) / denom;
     res.im = (a.im * b.re - a.re * b.im) / denom;
 
     return res;
 }
 
-static cplx cpow(cplx z, int exp){
+static inline cplx cpow(const cplx& z, const int n){
     cplx result = {1.0d, 0.0d};
     cplx base = z;
+    int exp = n;
 
     cwhile (exp > 0) {
         cif (exp & 1)
@@ -101,55 +103,45 @@ static cplx cpow(cplx z, int exp){
     return result;
 }
 
-static inline cplx cinv(cplx z){
-    double denom = z.re*z.re + z.im*z.im;
+static inline cplx cinv(const cplx& z){
+    const double denom = z.re * z.re + z.im * z.im;
 
     cplx res = { z.re / denom, -z.im / denom };
     return res;
 }
-
-static inline cplx f(cplx z, int n){
-    return cpow(z,n) - 1;
-}
-
-static inline cplx df(cplx z, int n){
-    return n * cpow(z,n-1);
-}
+//=====================================================================
 
 static inline clr adjustColor(const clr c, const uint iters){
     const double brightness = 1.0d / (1.0d + (double)iters * 0.1d);
 
     clr res = 0x000000FF;
-    cfor(uniform uint i = 0; i < 3; i++){
-        clr buff = ((c >> (i+1) * 8) & 0xFF);
+    for(uniform uint i = 0; i < 3; i++){
+        clr buff = ((c >> (i + 1) * 8) & 0xFF);
         buff = ((double)buff * brightness);
 
-        buff <<= (i+1) * 8;
+        buff <<= (i + 1) * 8;
         res |= buff;
     }
-
+    
     return res;
 }
 
-static inline cplx calcNewtonStep(cplx z, int n){
-    double coeff = (double)(n-1)/(double)n;
+static inline cplx calcNewtonStep(const cplx& z, const int n){
+    double coeff = (double)(n - 1) / (double)n;
+
     cplx l = coeff * z;
 
-    cplx r = (1.0d / (double)n) * cinv(cpow(z,n-1));
+    cplx r = (1.0d / (double)n) * cinv(cpow(z,n - 1));
 
-    return l+r;
+    return l + r;
 }
 
 static inline clr findColor(const uint x,  const uniform uint y, const uniform uint width, const uniform uint height, const uniform uint max_iterations, const uniform int n, const uniform binding roots[]){
-    //const double zx = -2.5d + ((double)x / (double)(width - 1)) * 3.5d;
-    //const double zy = -2.0d + ((double)y / (double)(height - 1)) * 3.0d;
-
-    const double zx = -2.0d + ((double)x / (double)(width - 1)) * 4.0d;
-    const double zy = -2.0d + ((double)y / (double)(height - 1)) * 4.0d;
+    const double zx = -4.0d + ((double)x / (double)(width - 1)) * 8.0d;
+    const double zy = -4.0d + ((double)y / (double)(height - 1)) * 8.0d;
 
     cplx z = {zx,zy};
     for(uniform uint i=0; i < max_iterations; i++){
-        //z = z - (f(z,n) / df(z,n));
 
         z = calcNewtonStep(z,n);
         for(uniform int j = 0; j < n; j++){
