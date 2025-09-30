@@ -1,6 +1,6 @@
 #define BLACK 0x000000FF
 
-#define EPS 0.000001f
+#define EPS 0.000001d
 
 typedef uint32 clr;
 
@@ -103,12 +103,6 @@ static inline cplx cpow(const cplx& z, const int n){
     return result;
 }
 
-static inline cplx cinv(const cplx& z){
-    const double denom = z.re * z.re + z.im * z.im;
-
-    cplx res = { z.re / denom, -z.im / denom };
-    return res;
-}
 //=====================================================================
 
 static inline clr adjustColor(const clr c, const uint iters){
@@ -127,16 +121,12 @@ static inline clr adjustColor(const clr c, const uint iters){
 }
 
 static inline cplx calcNewtonStep(const cplx& z, const int n){
-    double coeff = (double)(n - 1) / (double)n;
+    const cplx z_n_less = cpow(z,n-1);
 
-    cplx l = coeff * z;
-
-    cplx r = (1.0d / (double)n) * cinv(cpow(z,n - 1));
-
-    return l + r;
+    return z - (((z_n_less * z) - 1) / (n * z_n_less));
 }
 
-static inline clr findColor(const uint x,  const uniform uint y, const uniform uint width, const uniform uint height, const uniform uint max_iterations, const uniform int n, const uniform binding roots[]){
+static inline clr findColor(const uint x,  const uint y, const uniform uint width, const uniform uint height, const uniform uint max_iterations, const uniform int n, const uniform binding roots[]){
     const double zx = -4.0d + ((double)x / (double)(width - 1)) * 8.0d;
     const double zy = -4.0d + ((double)y / (double)(height - 1)) * 8.0d;
 
@@ -155,8 +145,6 @@ static inline clr findColor(const uint x,  const uniform uint y, const uniform u
 }
 
 export void newtonFrac(uniform clr buffer[], const uniform binding roots[], const uniform int n, const uniform uint width, const uniform uint height, const uniform uint max_iterations){
-    for (uniform uint y = 0; y < height; y++) {
-        foreach_tiled (x = 0 ... width)
+        foreach_tiled (y = 0 ... height, x = 0 ... width)
             buffer[y * width + x] = findColor(x, y, width, height, max_iterations, n, roots);
-    }
 }

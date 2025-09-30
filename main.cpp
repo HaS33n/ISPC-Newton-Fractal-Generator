@@ -44,7 +44,12 @@ int main(int argc, char** argv) {
     std::unique_ptr<ispc::binding> roots(new ispc::binding[n]);
 
     calcRoots(roots.get(), n);
+    auto start = std::chrono::high_resolution_clock::now();
     ispc::newtonFrac(img_buffer.get(), roots.get(), n, i_width, i_height, max_iter);
+    auto stop = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = stop - start;
+
+    std::cout << "Czas wykonania: " << elapsed.count() << " ms\n";
     dumpToFile(img_buffer.get());
 
     return 0;
@@ -77,7 +82,7 @@ void dumpToFile(const Color* data){
     for(uint i = 0; i < i_width * i_height; i++){
         const auto pxl = data[i];
 
-        for(uint j = 1; j <= 3; j++)
+        for(uint j = 3; j != 0; j--)
             file<< ((pxl >> j * 8) & 0xFF)<<" "; //Im doing this, because data is RGBA, and im interested only in RGB; Also, no \n after every row because ppm format doesnt care, so why bother?
     }
     file.flush();
