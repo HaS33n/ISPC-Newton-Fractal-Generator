@@ -38,7 +38,10 @@ int main(int argc, char** argv) {
     int n = 0;
     if(argc == 2){
         n = std::stoi(argv[1]);
-    } if(n == 0) return EXIT_FAILURE;
+    } if(n == 0){
+        std::cout<<"No n value provided, usage: ./frac.out n\n";
+        return EXIT_FAILURE;
+    } 
 
     std::unique_ptr<Color> img_buffer(new Color[i_width * i_height]);
     std::unique_ptr<ispc::binding> roots(new ispc::binding[n]);
@@ -49,7 +52,7 @@ int main(int argc, char** argv) {
     auto stop = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = stop - start;
 
-    std::cout << "Czas wykonania: " << elapsed.count() << " ms\n";
+    std::cout << "Execution time: " << elapsed.count() << " ms\n";
     dumpToFile(img_buffer.get());
 
     return 0;
